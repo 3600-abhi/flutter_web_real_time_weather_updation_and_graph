@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:real_time_weather_update/screens/dateTimePicking.dart';
 import 'package:real_time_weather_update/screens/signIn.dart';
+import 'package:real_time_weather_update/screens/tempVsTimeGraph.dart';
 import 'package:real_time_weather_update/worker.dart';
 
 void main() async {
@@ -29,27 +31,29 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      routes: {
+        'worker': (context) => worker(),
+        'TemperatureVsTimeGraph': (context) => TemperatureVsTimeGraph(),
+        'dateTimePicking' : (context) => dateTimePicking(),
+      },
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'Real Time Weather Update',
       theme: ThemeData(primarySwatch: Colors.purple),
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context,snapshot) {
-          if(snapshot.connectionState == ConnectionState.waiting) {
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: CircularProgressIndicator(),
             );
-          }
-          else if(snapshot.hasError) {
+          } else if (snapshot.hasError) {
             return Center(
               child: Text("Something went wrong!"),
             );
-          }
-          else if(snapshot.hasData) {
+          } else if (snapshot.hasData) {
             return worker();
-          }
-          else {
+          } else {
             return Login();
           }
         },
@@ -57,5 +61,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-

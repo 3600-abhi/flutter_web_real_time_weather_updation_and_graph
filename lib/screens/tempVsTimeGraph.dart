@@ -5,29 +5,70 @@ import 'package:real_time_weather_update/weatherWithTime.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class TemperatureVsTimeGraph extends StatefulWidget {
-  const TemperatureVsTimeGraph({Key? key}) : super(key: key);
+  DateTime? pickedDate = null;
+  TimeOfDay? startingTime = null;
+  TimeOfDay? endingTime = null;
+
+  TemperatureVsTimeGraph(
+      {Key? key, this.pickedDate, this.startingTime, this.endingTime})
+      : super(key: key);
 
   @override
-  _TemperatureVsTimeGraphState createState() => _TemperatureVsTimeGraphState();
+  _TemperatureVsTimeGraphState createState() => _TemperatureVsTimeGraphState(
+      this.pickedDate, this.startingTime, this.endingTime);
 }
 
 class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
+  DateTime? pickedDate = null;
+  TimeOfDay? startingTime = null;
+  TimeOfDay? endingTime = null;
+
+  String pickedDateAsString = '';
+  String startingTimeAsString = '';
+  String endingTimeAsString = '';
+  String pickedDateForDateFetchingFromFirebase = '';
+
+  _TemperatureVsTimeGraphState(
+      this.pickedDate, this.startingTime, this.endingTime);
+
   List<weatherWithTime> weatherTimeList = [];
 
   Future<List<weatherWithTime>> fetchData() async {
+
+
+    // formatting the starting date and time
+    var formatter = new DateFormat('yyyy-MM-dd');
+    var formatterForDateFetchingFromFirebase = new DateFormat('dd-MM-yyyy');
+    String formattedDate = formatter.format(pickedDate!);
+    String formattedDate2 = formatterForDateFetchingFromFirebase.format(pickedDate!);
+    String pickedDateForDateFetchingFromFirebase = formattedDate2;
+    pickedDateAsString = formattedDate;
+    startingTimeAsString = startingTime.toString();
+    endingTimeAsString = endingTime.toString();
+    startingTimeAsString += ':00';
+    endingTimeAsString += ':00';
+    startingTimeAsString = startingTimeAsString.replaceAll('TimeOfDay','').replaceAll('(', '').replaceAll(')', '');
+    endingTimeAsString = endingTimeAsString.replaceAll('TimeOfDay','').replaceAll('(', '').replaceAll(')', '');
+
+
+    print(
+        'pickedDate: $pickedDateAsString, staringTime: $startingTimeAsString, endingTime: $endingTimeAsString');
+
+
+
     // fetch the data from real time database
     Query query = await FirebaseDatabase.instance
         .ref('Weather Report')
         .child('Date')
-        .child('24-01-2022')
+        .child(pickedDateForDateFetchingFromFirebase)
         .child('Time')
         .orderByKey()
-        .startAt('01:47:57')
-        .endAt('19:30:44');
+        .startAt(startingTimeAsString)
+        .endAt(endingTimeAsString);
 
     // printing the queried data which have been fetched from real time database
     DataSnapshot event = await query.get();
-    print('Queried data is ${event.value}');
+    // print('Queried data is ${event.value}');
 
     // inserting the data into the list from map
     var fetchedDataInMap = event.value as Map;
@@ -68,10 +109,9 @@ class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
                             majorGridLines: MajorGridLines(width: 0),
                             title: AxisTitle(text: 'Time'),
                             // minimum: DateTime.now(),
-                            minimum: DateTime.parse('2022-01-24 00:00:00'),
-                            maximum: DateTime.parse('2022-01-24 23:59:59'),
+                            minimum: DateTime.parse('$pickedDateAsString 00:00:00'),
+                            maximum: DateTime.parse('$pickedDateAsString 23:59:59'),
                             desiredIntervals: 100,
-                            // interval: 1,
                             dateFormat: DateFormat.Hms()),
                         primaryYAxis: NumericAxis(
                           majorGridLines: MajorGridLines(width: 0),
@@ -88,7 +128,7 @@ class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
                             dataSource: weatherTimeList,
                             xValueMapper: (weatherWithTime currentData, _) =>
                                 DateTime.parse(
-                                    '2022-01-24 ' + currentData.time),
+                                    '$pickedDateAsString ' + currentData.time),
                             yValueMapper: (weatherWithTime currentData, _) =>
                                 double.parse(currentData.temperature),
                             // dataLabelSettings: DataLabelSettings(isVisible: true),
@@ -104,10 +144,9 @@ class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
                             majorGridLines: MajorGridLines(width: 0),
                             title: AxisTitle(text: 'Time'),
                             // minimum: DateTime.now(),
-                            minimum: DateTime.parse('2022-01-24 00:00:00'),
-                            maximum: DateTime.parse('2022-01-24 22:59:59'),
-                            // desiredIntervals: 100,
-                            // interval: 1,
+                            minimum: DateTime.parse('$pickedDateAsString 00:00:00'),
+                            maximum: DateTime.parse('$pickedDateAsString 23:59:59'),
+                            desiredIntervals: 100,
                             dateFormat: DateFormat.Hms()),
                         primaryYAxis: NumericAxis(
                           majorGridLines: MajorGridLines(width: 0),
@@ -118,19 +157,20 @@ class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
                         ),
                         legend: Legend(isVisible: true),
                         tooltipBehavior: TooltipBehavior(enable: true),
-                        title: ChartTitle(text: 'Humidity Vs Time '),
+                        title: ChartTitle(text: 'Humidity Vs Time'),
                         series: <ChartSeries<weatherWithTime, DateTime>>[
                           LineSeries<weatherWithTime, DateTime>(
                             dataSource: weatherTimeList,
                             xValueMapper: (weatherWithTime currentData, _) =>
                                 DateTime.parse(
-                                    '2022-01-24 ' + currentData.time),
+                                    '$pickedDateAsString ' + currentData.time),
                             yValueMapper: (weatherWithTime currentData, _) =>
                                 double.parse(currentData.humidity),
                             // dataLabelSettings: DataLabelSettings(isVisible: true),
                           )
                         ]),
                   ),
+
                 ],
               );
             }

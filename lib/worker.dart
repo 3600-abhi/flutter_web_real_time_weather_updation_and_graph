@@ -1,10 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
-import 'package:real_time_weather_update/screens/graph_demo.dart';
+import 'package:real_time_weather_update/screens/dateTimePicking.dart';
 import 'package:real_time_weather_update/screens/signIn.dart';
 import 'package:real_time_weather_update/screens/tempVsTimeGraph.dart';
 import 'package:real_time_weather_update/weatherWithTime.dart';
@@ -18,8 +19,9 @@ class worker extends StatefulWidget {
 }
 
 class _workerState extends State<worker> {
-  final user = FirebaseAuth.instance.currentUser;
 
+
+  final user = FirebaseAuth.instance.currentUser;
   String location = 'New Delhi';
   String temperature = '';
   String humidity = '';
@@ -40,8 +42,6 @@ class _workerState extends State<worker> {
     String formattedTime = DateFormat.Hms().format(currentDateTime);
     String currentTime = formattedTime;
     String currentDate = formattedDate;
-    // print('current date is $currentDate');
-    // print('current time is $currentTime');
 
     //  get temperature and humidity
     temperature = (data['main']['temp'] - 273.15).toString().substring(0, 5);
@@ -77,37 +77,35 @@ class _workerState extends State<worker> {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Welcome ${user!.email}',
                         style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 25,
-                            color: Colors.blue)),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 25,
+                        )),
                     SizedBox(height: 10),
                     Text('Current Time : ${snapshot.data!.time}',
                         style: TextStyle(
-                            fontSize: 25,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.purple)),
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                        )),
                     SizedBox(height: 10),
                     Text('Current Temperature : ${snapshot.data!.temperature}',
                         style: TextStyle(
-                            fontSize: 25,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green)),
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                        )),
                     SizedBox(height: 10),
                     Text('Current Humidity : ${snapshot.data!.humidity}',
                         style: TextStyle(
                           fontSize: 25,
                           fontWeight: FontWeight.bold,
-                          color: Colors.red,
                         )),
                     SizedBox(height: 20),
                     Container(
                       height: 50,
                       child: ElevatedButton(
-                        child: Text('SignOut', style: TextStyle(fontSize: 20)),
+                        child: Text('Sign out', style: TextStyle(fontSize: 20)),
                         onPressed: () {
                           signInAuthUsingEmailAndPassword.signOutAuth().then(
                               (value) => Navigator.pushReplacement(
@@ -119,26 +117,12 @@ class _workerState extends State<worker> {
                     ),
                     SizedBox(height: 20),
                     ElevatedButton(
-                        child: Text('See Graph'),
+                        child: Text('Pick Date and Time'),
                         onPressed: () {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      TemperatureVsTimeGraph()));
-                        }),
-
-
-
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                        child: Text('See Demo Graph'),
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      graphDemo()));
+                                  builder: (context) => dateTimePicking()));
                         })
                   ],
                 ),
