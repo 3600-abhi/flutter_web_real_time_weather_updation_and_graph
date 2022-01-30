@@ -49,10 +49,12 @@ class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
     endingTimeAsString += ':00';
     startingTimeAsString = startingTimeAsString.replaceAll('TimeOfDay','').replaceAll('(', '').replaceAll(')', '');
     endingTimeAsString = endingTimeAsString.replaceAll('TimeOfDay','').replaceAll('(', '').replaceAll(')', '');
+    startingTimeAsString =  startingTimeAsString.replaceAll('minified:bf', '');
+    endingTimeAsString = endingTimeAsString.replaceAll('minified:bf', '');
 
 
     print(
-        'pickedDate: $pickedDateAsString, staringTime: $startingTimeAsString, endingTime: $endingTimeAsString');
+        'pickedDate: $pickedDateAsString, staringTime: $startingTimeAsString, endingTime: $endingTimeAsString, pickedDateForDateFetchingFromFirebase: $pickedDateForDateFetchingFromFirebase');
 
 
 
@@ -68,7 +70,9 @@ class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
 
     // printing the queried data which have been fetched from real time database
     DataSnapshot event = await query.get();
-    // print('Queried data is ${event.value}');
+    print('Queried data is ${event.value}');
+
+    print('Namaste');
 
     // inserting the data into the list from map
     var fetchedDataInMap = event.value as Map;
@@ -104,6 +108,7 @@ class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
                     height: 300,
                     width: 300,
                     child: SfCartesianChart(
+                      enableAxisAnimation: true,
                         primaryXAxis: DateTimeAxis(
                             intervalType: DateTimeIntervalType.hours,
                             majorGridLines: MajorGridLines(width: 0),

@@ -3,34 +3,30 @@ import 'package:flutter/material.dart';
 import '../main.dart';
 
 class signInAuthUsingEmailAndPassword {
-
-
-  static Future signInAuth(BuildContext _context,String _email, String _password) async {
-
+  static Future signInAuth(
+      BuildContext _context, String _email, String _password) async {
     showDialog(
-      context: _context,
-      barrierDismissible: false,
-      builder: (context) => Center(child: CircularProgressIndicator())
-    );
+        context: _context,
+        barrierDismissible: false,
+        builder: (context) => Center(child: CircularProgressIndicator()));
 
     try {
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: _email, password: _password);
     } catch (e) {
-      print(e);
+      // print(e);
+      return 'problem';
     }
 
     navigatorKey.currentState!.popUntil((route) => route.isFirst);
   }
 
-  static Future signUpAuth(BuildContext _context,String _email, String _password) async {
-
+  static Future signUpAuth(
+      BuildContext _context, String _email, String _password) async {
     showDialog(
         context: _context,
         barrierDismissible: false,
-        builder: (context) => Center(child: CircularProgressIndicator())
-    );
-
+        builder: (context) => Center(child: CircularProgressIndicator()));
 
     try {
       await FirebaseAuth.instance
@@ -42,11 +38,11 @@ class signInAuthUsingEmailAndPassword {
         print('The account already exists for that email.');
       }
     } catch (e) {
-      print(e);
+      return e;
     }
 
     navigatorKey.currentState!.popUntil((route) => route.isFirst);
-
+    return null;
   }
 
   static Future signOutAuth() async {

@@ -21,7 +21,7 @@ class signUp extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 50,
                   fontWeight: FontWeight.bold,
-                  color: Colors.purple,
+                  color: Colors.teal,
                 )),
             SizedBox(height: 50),
             Container(

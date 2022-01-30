@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:real_time_weather_update/screens/TabularRepresentation.dart';
 import 'package:real_time_weather_update/screens/tempVsTimeGraph.dart';
 
 class dateTimePicking extends StatefulWidget {
@@ -13,6 +14,12 @@ class _dateTimePickingState extends State<dateTimePicking> {
   DateTime? pickedDate = null;
   TimeOfDay? startingTime = null;
   TimeOfDay? endingTime = null;
+
+  var optionsInsideDropdown = [
+    'Graphical Representation',
+    'Tabular Representation'
+  ];
+  var optionSelctedFromDropdown = 'Select Option';
 
   String getDate() {
     if (pickedDate == null) {
@@ -50,95 +57,126 @@ class _dateTimePickingState extends State<dateTimePicking> {
     return Scaffold(
       appBar: AppBar(title: Text('Select Date and Time')),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Date : ',
-                    style:
-                        TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-                OutlinedButton(
-                  child: Text(getDate(),
+        child: Container(
+          width: 550,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text('Date : ',
                       style:
                           TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-                  onPressed: () async {
-                    DateTime? newDate = await showDatePicker(
+                  OutlinedButton(
+                    child: Text(getDate(),
+                        style: TextStyle(
+                            fontSize: 30, fontWeight: FontWeight.bold)),
+                    onPressed: () async {
+                      DateTime? newDate = await showDatePicker(
+                          context: context,
+                          initialDate: pickedDate ?? DateTime.now(),
+                          firstDate: DateTime(DateTime.now().year - 5),
+                          lastDate: DateTime(DateTime.now().year + 5));
+                      if (newDate == null) return;
+                      setState(() {
+                        pickedDate = newDate;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              SizedBox(height: 25),
+              Row(
+                // mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Starting Time : ',
+                      style:
+                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                  OutlinedButton(
+                    child: Text(getStartingTime(),
+                        style: TextStyle(
+                            fontSize: 30, fontWeight: FontWeight.bold)),
+                    onPressed: () async {
+                      TimeOfDay? newStartingTime = await showTimePicker(
                         context: context,
-                        initialDate: pickedDate ?? DateTime.now(),
-                        firstDate: DateTime(DateTime.now().year - 5),
-                        lastDate: DateTime(DateTime.now().year + 5));
-                    if (newDate == null) return;
-                    setState(() {
-                      pickedDate = newDate;
-                    });
-                  },
-                ),
-              ],
-            ),
-            SizedBox(height: 25),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Starting Time : ',
-                    style:
-                        TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-                OutlinedButton(
-                  child: Text(getStartingTime(),
+                        initialTime: TimeOfDay(hour: 9, minute: 0),
+                      );
+                      if (newStartingTime == null) return;
+                      setState(() {
+                        startingTime = newStartingTime;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              SizedBox(height: 25),
+              Row(
+                // mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Ending Time : ',
                       style:
                           TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-                  onPressed: () async {
-                    TimeOfDay? newStartingTime = await showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay(hour: 9, minute: 0),
-                    );
-                    if (newStartingTime == null) return;
-                    setState(() {
-                      startingTime = newStartingTime;
-                    });
-                  },
-                ),
-              ],
-            ),
-            SizedBox(height: 25),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Ending Time : ',
-                    style:
-                        TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-                OutlinedButton(
-                  child: Text(getEndingTime(),
-                      style:
-                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-                  onPressed: () async {
-                    TimeOfDay? newEndingTime = await showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay(hour: 12, minute: 0),
-                    );
-                    if (newEndingTime == null) return;
-                    setState(() {
-                      endingTime = newEndingTime;
-                    });
-                  },
-                ),
-              ],
-            ),
-            SizedBox(height: 25),
-            ElevatedButton(
-                child: Text('See Graphical variation'),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => TemperatureVsTimeGraph(
-                                pickedDate: pickedDate,
-                                startingTime: startingTime,
-                                endingTime: endingTime,
-                              )));
-                }),
-          ],
+                  OutlinedButton(
+                    child: Text(getEndingTime(),
+                        style: TextStyle(
+                            fontSize: 30, fontWeight: FontWeight.bold)),
+                    onPressed: () async {
+                      TimeOfDay? newEndingTime = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay(hour: 12, minute: 0),
+                      );
+                      if (newEndingTime == null) return;
+                      setState(() {
+                        endingTime = newEndingTime;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              SizedBox(height: 30),
+              DropdownButton<String>(
+                hint: Text(optionSelctedFromDropdown),
+                items: optionsInsideDropdown.map((option) {
+                  return DropdownMenuItem(child: Text(option), value: option);
+                }).toList(),
+                onChanged: (newOptionSelected) {
+                  setState(() {
+                    optionSelctedFromDropdown = newOptionSelected as String;
+                  });
+                  if (pickedDate == null ||
+                      startingTime == null ||
+                      endingTime == null) {
+                    final snackbar =
+                        SnackBar(content: Text('All data are mandatory'));
+                    ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                  } else if (optionSelctedFromDropdown ==
+                      'Graphical Representation') {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => TemperatureVsTimeGraph(
+                                  pickedDate: pickedDate,
+                                  startingTime: startingTime,
+                                  endingTime: endingTime,
+                                )));
+                    optionSelctedFromDropdown = 'Select Option';
+                  } else if (optionSelctedFromDropdown ==
+                      'Tabular Representation') {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => TabularRepresentation(
+                                  pickedDate: pickedDate,
+                                  startingTime: startingTime,
+                                  endingTime: endingTime,
+                                )));
+                    optionSelctedFromDropdown = 'Select Option';
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

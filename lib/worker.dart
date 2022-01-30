@@ -7,7 +7,6 @@ import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:real_time_weather_update/screens/dateTimePicking.dart';
 import 'package:real_time_weather_update/screens/signIn.dart';
-import 'package:real_time_weather_update/screens/tempVsTimeGraph.dart';
 import 'package:real_time_weather_update/weatherWithTime.dart';
 import 'package:real_time_weather_update/services/authentication.dart';
 
@@ -19,17 +18,18 @@ class worker extends StatefulWidget {
 }
 
 class _workerState extends State<worker> {
-
-
   final user = FirebaseAuth.instance.currentUser;
   String location = 'New Delhi';
   String temperature = '';
   String humidity = '';
+  String apiId = 'd56eb9af33f2e453687a7ed57ba39269';
 
   Future<weatherWithTime> getData() async {
+
+
     // get the weather data from the weather map API
     var url = Uri.parse(
-        "https://api.openweathermap.org/data/2.5/weather?q=$location&appid=d56eb9af33f2e453687a7ed57ba39269");
+        "https://api.openweathermap.org/data/2.5/weather?q=$location&appid=$apiId");
     var response = await get(url);
     Map data = jsonDecode(response.body);
 
@@ -47,7 +47,7 @@ class _workerState extends State<worker> {
     temperature = (data['main']['temp'] - 273.15).toString().substring(0, 5);
     humidity = data['main']['humidity'].toString();
 
-    // inserting the fetched data into real time databse
+    // inserting the fetched data into real time database
     await FirebaseDatabase.instance
         .ref('Weather Report')
         .child('Date')
@@ -66,75 +66,79 @@ class _workerState extends State<worker> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:
-          AppBar(title: Text('Real Time Weather Update'), centerTitle: true),
-      body: Container(
-        child: StreamBuilder(
-          stream:
-              Stream.periodic(Duration(seconds: 4)).asyncMap((i) => getData()),
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.hasData) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Welcome ${user!.email}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
-                        )),
-                    SizedBox(height: 10),
-                    Text('Current Time : ${snapshot.data!.time}',
-                        style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                        )),
-                    SizedBox(height: 10),
-                    Text('Current Temperature : ${snapshot.data!.temperature}',
-                        style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                        )),
-                    SizedBox(height: 10),
-                    Text('Current Humidity : ${snapshot.data!.humidity}',
-                        style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                        )),
-                    SizedBox(height: 20),
-                    Container(
-                      height: 50,
-                      child: ElevatedButton(
-                        child: Text('Sign out', style: TextStyle(fontSize: 20)),
-                        onPressed: () {
-                          signInAuthUsingEmailAndPassword.signOutAuth().then(
-                              (value) => Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Login())));
-                        },
+      appBar: AppBar(title: Text('Real Time Weather Update')),
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.only(top: 250),
+          child: StreamBuilder(
+            stream:
+                Stream.periodic(Duration(seconds: 4)).asyncMap((i) => getData()),
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              if (snapshot.hasData) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Welcome ${user!.email}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 25,
+                          )),
+                      SizedBox(height: 10),
+                      Text('Current Time : ${snapshot.data!.time}',
+                          style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                          )),
+                      SizedBox(height: 10),
+                      Text(
+                          'Current Temperature : ${snapshot.data!.temperature}',
+                          style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                          )),
+                      SizedBox(height: 10),
+                      Text('Current Humidity : ${snapshot.data!.humidity}',
+                          style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                          )),
+                      SizedBox(height: 20),
+                      Container(
+                        height: 50,
+                        child: ElevatedButton(
+                          child: Text('Sign out', style: TextStyle(fontSize: 20)),
+                          onPressed: () {
+                            signInAuthUsingEmailAndPassword.signOutAuth().then(
+                                (value) => Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Login())));
+                          },
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                        child: Text('Pick Date and Time'),
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => dateTimePicking()));
-                        })
-                  ],
-                ),
-              );
-            } else {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-          },
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                          child: Text('Pick Date and Time'),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => dateTimePicking()));
+                          })
+                    ],
+                  ),
+                );
+              } else {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            },
+          ),
         ),
       ),
     );
   }
 }
+
