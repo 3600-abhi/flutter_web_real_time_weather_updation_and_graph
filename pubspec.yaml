@@ -36,6 +36,9 @@ dependencies:
   intl: any
   syncfusion_flutter_charts: any
 
+  # to take screenshot
+  screenshot: ^1.2.3
+
 
 
   # The following adds the Cupertino Icons font to your application.

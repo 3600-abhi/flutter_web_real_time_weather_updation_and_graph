@@ -1,8 +1,13 @@
+import 'dart:convert';
+import 'dart:html';
+import 'dart:typed_data';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:real_time_weather_update/weatherWithTime.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:screenshot/screenshot.dart';
 
 class TemperatureVsTimeGraph extends StatefulWidget {
   DateTime? pickedDate = null;
@@ -28,35 +33,39 @@ class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
   String endingTimeAsString = '';
   String pickedDateForDateFetchingFromFirebase = '';
 
+  ScreenshotController screenshotController = ScreenshotController();
+
   _TemperatureVsTimeGraphState(
       this.pickedDate, this.startingTime, this.endingTime);
 
   List<weatherWithTime> weatherTimeList = [];
 
   Future<List<weatherWithTime>> fetchData() async {
-
-
     // formatting the starting date and time
     var formatter = new DateFormat('yyyy-MM-dd');
     var formatterForDateFetchingFromFirebase = new DateFormat('dd-MM-yyyy');
     String formattedDate = formatter.format(pickedDate!);
-    String formattedDate2 = formatterForDateFetchingFromFirebase.format(pickedDate!);
+    String formattedDate2 =
+        formatterForDateFetchingFromFirebase.format(pickedDate!);
     String pickedDateForDateFetchingFromFirebase = formattedDate2;
     pickedDateAsString = formattedDate;
     startingTimeAsString = startingTime.toString();
     endingTimeAsString = endingTime.toString();
     startingTimeAsString += ':00';
     endingTimeAsString += ':00';
-    startingTimeAsString = startingTimeAsString.replaceAll('TimeOfDay','').replaceAll('(', '').replaceAll(')', '');
-    endingTimeAsString = endingTimeAsString.replaceAll('TimeOfDay','').replaceAll('(', '').replaceAll(')', '');
-    startingTimeAsString =  startingTimeAsString.replaceAll('minified:bf', '');
+    startingTimeAsString = startingTimeAsString
+        .replaceAll('TimeOfDay', '')
+        .replaceAll('(', '')
+        .replaceAll(')', '');
+    endingTimeAsString = endingTimeAsString
+        .replaceAll('TimeOfDay', '')
+        .replaceAll('(', '')
+        .replaceAll(')', '');
+    startingTimeAsString = startingTimeAsString.replaceAll('minified:bf', '');
     endingTimeAsString = endingTimeAsString.replaceAll('minified:bf', '');
-
 
     print(
         'pickedDate: $pickedDateAsString, staringTime: $startingTimeAsString, endingTime: $endingTimeAsString, pickedDateForDateFetchingFromFirebase: $pickedDateForDateFetchingFromFirebase');
-
-
 
     // fetch the data from real time database
     Query query = await FirebaseDatabase.instance
@@ -71,8 +80,6 @@ class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
     // printing the queried data which have been fetched from real time database
     DataSnapshot event = await query.get();
     print('Queried data is ${event.value}');
-
-    print('Namaste');
 
     // inserting the data into the list from map
     var fetchedDataInMap = event.value as Map;
@@ -104,78 +111,114 @@ class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
             } else {
               return ListView(
                 children: [
-                  Container(
-                    height: 300,
-                    width: 300,
-                    child: SfCartesianChart(
-                      enableAxisAnimation: true,
-                        primaryXAxis: DateTimeAxis(
-                            intervalType: DateTimeIntervalType.hours,
-                            majorGridLines: MajorGridLines(width: 0),
-                            title: AxisTitle(text: 'Time'),
-                            // minimum: DateTime.now(),
-                            minimum: DateTime.parse('$pickedDateAsString 00:00:00'),
-                            maximum: DateTime.parse('$pickedDateAsString 23:59:59'),
-                            desiredIntervals: 100,
-                            dateFormat: DateFormat.Hms()),
-                        primaryYAxis: NumericAxis(
-                          majorGridLines: MajorGridLines(width: 0),
-                          minimum: 0,
-                          maximum: 50,
-                          labelFormat: '{value}°C',
-                          title: AxisTitle(text: 'Temperature'),
-                        ),
-                        legend: Legend(isVisible: true),
-                        tooltipBehavior: TooltipBehavior(enable: true),
-                        title: ChartTitle(text: 'Temperature Vs Time'),
-                        series: <ChartSeries<weatherWithTime, DateTime>>[
-                          LineSeries<weatherWithTime, DateTime>(
-                            dataSource: weatherTimeList,
-                            xValueMapper: (weatherWithTime currentData, _) =>
-                                DateTime.parse(
-                                    '$pickedDateAsString ' + currentData.time),
-                            yValueMapper: (weatherWithTime currentData, _) =>
-                                double.parse(currentData.temperature),
-                            // dataLabelSettings: DataLabelSettings(isVisible: true),
-                          )
-                        ]),
+                  Screenshot(
+                    controller: screenshotController,
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 400,
+                            width: MediaQuery.of(context).size.width,
+                            child: SfCartesianChart(
+                                enableAxisAnimation: true,
+                                primaryXAxis: DateTimeAxis(
+                                    intervalType: DateTimeIntervalType.hours,
+                                    majorGridLines: MajorGridLines(width: 0),
+                                    title: AxisTitle(text: 'Time'),
+                                    // minimum: DateTime.now(),
+                                    minimum: DateTime.parse(
+                                        '$pickedDateAsString 00:00:00'),
+                                    maximum: DateTime.parse(
+                                        '$pickedDateAsString 23:59:59'),
+                                    desiredIntervals: 100,
+                                    dateFormat: DateFormat.Hms()),
+                                primaryYAxis: NumericAxis(
+                                  majorGridLines: MajorGridLines(width: 0),
+                                  minimum: 0,
+                                  maximum: 50,
+                                  labelFormat: '{value}°C',
+                                  title: AxisTitle(text: 'Temperature'),
+                                ),
+                                legend: Legend(isVisible: true),
+                                tooltipBehavior: TooltipBehavior(enable: true),
+                                title: ChartTitle(text: 'Temperature Vs Time'),
+                                series: <ChartSeries<weatherWithTime, DateTime>>[
+                                  LineSeries<weatherWithTime, DateTime>(
+                                    dataSource: weatherTimeList,
+                                    xValueMapper: (weatherWithTime currentData,
+                                            _) =>
+                                        DateTime.parse('$pickedDateAsString ' +
+                                            currentData.time),
+                                    yValueMapper:
+                                        (weatherWithTime currentData, _) =>
+                                            double.parse(currentData.temperature),
+                                    // dataLabelSettings: DataLabelSettings(isVisible: true),
+                                  )
+                                ]),
+                          ),
+                          Container(
+                            height: 400,
+                            width: MediaQuery.of(context).size.width,
+                            child: SfCartesianChart(
+                                primaryXAxis: DateTimeAxis(
+                                    intervalType: DateTimeIntervalType.hours,
+                                    majorGridLines: MajorGridLines(width: 0),
+                                    title: AxisTitle(text: 'Time'),
+                                    // minimum: DateTime.now(),
+                                    minimum: DateTime.parse(
+                                        '$pickedDateAsString 00:00:00'),
+                                    maximum: DateTime.parse(
+                                        '$pickedDateAsString 23:59:59'),
+                                    desiredIntervals: 100,
+                                    dateFormat: DateFormat.Hms()),
+                                primaryYAxis: NumericAxis(
+                                  majorGridLines: MajorGridLines(width: 0),
+                                  minimum: 0,
+                                  maximum: 110,
+                                  labelFormat: '{value}°%',
+                                  title: AxisTitle(text: 'Humidity'),
+                                ),
+                                legend: Legend(isVisible: true),
+                                tooltipBehavior: TooltipBehavior(enable: true),
+                                title: ChartTitle(text: 'Humidity Vs Time'),
+                                series: <ChartSeries<weatherWithTime, DateTime>>[
+                                  LineSeries<weatherWithTime, DateTime>(
+                                    dataSource: weatherTimeList,
+                                    xValueMapper: (weatherWithTime currentData,
+                                            _) =>
+                                        DateTime.parse('$pickedDateAsString ' +
+                                            currentData.time),
+                                    yValueMapper:
+                                        (weatherWithTime currentData, _) =>
+                                            double.parse(currentData.humidity),
+                                    // dataLabelSettings: DataLabelSettings(isVisible: true),
+                                  )
+                                ]),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  Container(
-                    height: 300,
-                    width: 300,
-                    child: SfCartesianChart(
-                        primaryXAxis: DateTimeAxis(
-                            intervalType: DateTimeIntervalType.hours,
-                            majorGridLines: MajorGridLines(width: 0),
-                            title: AxisTitle(text: 'Time'),
-                            // minimum: DateTime.now(),
-                            minimum: DateTime.parse('$pickedDateAsString 00:00:00'),
-                            maximum: DateTime.parse('$pickedDateAsString 23:59:59'),
-                            desiredIntervals: 100,
-                            dateFormat: DateFormat.Hms()),
-                        primaryYAxis: NumericAxis(
-                          majorGridLines: MajorGridLines(width: 0),
-                          minimum: 0,
-                          maximum: 110,
-                          labelFormat: '{value}°%',
-                          title: AxisTitle(text: 'Humidity'),
-                        ),
-                        legend: Legend(isVisible: true),
-                        tooltipBehavior: TooltipBehavior(enable: true),
-                        title: ChartTitle(text: 'Humidity Vs Time'),
-                        series: <ChartSeries<weatherWithTime, DateTime>>[
-                          LineSeries<weatherWithTime, DateTime>(
-                            dataSource: weatherTimeList,
-                            xValueMapper: (weatherWithTime currentData, _) =>
-                                DateTime.parse(
-                                    '$pickedDateAsString ' + currentData.time),
-                            yValueMapper: (weatherWithTime currentData, _) =>
-                                double.parse(currentData.humidity),
-                            // dataLabelSettings: DataLabelSettings(isVisible: true),
-                          )
-                        ]),
-                  ),
+                  SizedBox(height: 30),
+                  Center(
+                      child: ElevatedButton(
+                    child: Text('Download the Graph'),
+                    onPressed: () {
+                      screenshotController.capture().then((Uint8List? value) {
+                        final _base64 = base64Encode(value!);
+                        final anchor = AnchorElement(
+                            href:
+                                'data:application/octet-stream;base64,$_base64')
+                          ..download = "image.png"
+                          ..target = 'blank';
 
+                        document.body!.append(anchor);
+                        anchor.click();
+                        anchor.remove();
+                      });
+                    },
+                  )),
+                  SizedBox(height: 30),
                 ],
               );
             }
