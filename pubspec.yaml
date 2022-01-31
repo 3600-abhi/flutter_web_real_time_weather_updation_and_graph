@@ -39,6 +39,10 @@ dependencies:
   # to take screenshot
   screenshot: ^1.2.3
 
+  # for table with sticky headers
+  data_table_2: ^2.2.0
+
+
 
 
   # The following adds the Cupertino Icons font to your application.
