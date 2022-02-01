@@ -65,13 +65,10 @@ class _dateTimePickingState extends State<dateTimePicking> {
             children: [
               Row(
                 children: [
-                  Text('Date : ',
-                      style:
-                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                  Text('Date : ', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
                   OutlinedButton(
                     child: Text(getDate(),
-                        style: TextStyle(
-                            fontSize: 30, fontWeight: FontWeight.bold)),
+                        style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
                     onPressed: () async {
                       DateTime? newDate = await showDatePicker(
                           context: context,
