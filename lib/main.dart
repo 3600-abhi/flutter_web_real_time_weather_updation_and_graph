@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'Real Time Weather Update',
-      theme: ThemeData(primarySwatch: Colors.teal, brightness: Brightness.dark),
+      theme: ThemeData(primarySwatch: Colors.teal,brightness: Brightness.dark),
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {

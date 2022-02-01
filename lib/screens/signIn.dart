@@ -36,6 +36,7 @@ class Login extends StatelessWidget {
                 ),
                 //padding: EdgeInsets.only(left: 280, right: 280),
                 child: TextField(
+                  textInputAction: TextInputAction.next,
                   controller: emailController,
                   decoration: InputDecoration(
                       hintText: 'Enter your Email',
@@ -53,6 +54,7 @@ class Login extends StatelessWidget {
                 ),
                 //padding: EdgeInsets.only(left: 280, right: 280),
                 child: TextField(
+                  textInputAction: TextInputAction.next,
                   controller: passwordController,
                   obscureText: true,
                   obscuringCharacter: '*',

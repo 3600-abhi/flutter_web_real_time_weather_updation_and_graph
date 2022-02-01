@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:html';
 import 'dart:typed_data';
-
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -24,6 +23,9 @@ class TemperatureVsTimeGraph extends StatefulWidget {
 }
 
 class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
+
+
+
   DateTime? pickedDate = null;
   TimeOfDay? startingTime = null;
   TimeOfDay? endingTime = null;
@@ -61,8 +63,8 @@ class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
         .replaceAll('TimeOfDay', '')
         .replaceAll('(', '')
         .replaceAll(')', '');
-    startingTimeAsString = startingTimeAsString.replaceAll('minified:bf', '');
-    endingTimeAsString = endingTimeAsString.replaceAll('minified:bf', '');
+    startingTimeAsString = startingTimeAsString.replaceAll('minified:bi', '');
+    endingTimeAsString = endingTimeAsString.replaceAll('minified:bi', '');
 
     print(
         'pickedDate: $pickedDateAsString, staringTime: $startingTimeAsString, endingTime: $endingTimeAsString, pickedDateForDateFetchingFromFirebase: $pickedDateForDateFetchingFromFirebase');
@@ -106,7 +108,7 @@ class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
-                child: Text('Graph is loading please wait...'),
+                child: Text('Graph is loading Please wait...'),
               );
             } else {
               return ListView(
@@ -118,12 +120,12 @@ class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
                         children: [
                           Container(
                             height: 400,
-                            width: MediaQuery.of(context).size.width,
+                            width: MediaQuery.of(context).size.width * 0.75,
                             child: SfCartesianChart(
                                 enableAxisAnimation: true,
                                 primaryXAxis: DateTimeAxis(
                                     intervalType: DateTimeIntervalType.hours,
-                                    majorGridLines: MajorGridLines(width: 0),
+                                    majorGridLines: MajorGridLines(width: 1),
                                     title: AxisTitle(text: 'Time'),
                                     // minimum: DateTime.now(),
                                     minimum: DateTime.parse(
@@ -133,14 +135,14 @@ class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
                                     desiredIntervals: 100,
                                     dateFormat: DateFormat.Hms()),
                                 primaryYAxis: NumericAxis(
-                                  majorGridLines: MajorGridLines(width: 0),
+                                  majorGridLines: MajorGridLines(width: 1),
                                   minimum: 0,
                                   maximum: 50,
                                   labelFormat: '{value}°C',
                                   title: AxisTitle(text: 'Temperature'),
                                 ),
-                                legend: Legend(isVisible: true),
-                                tooltipBehavior: TooltipBehavior(enable: true),
+                                // legend: Legend(isVisible: true),
+                                // tooltipBehavior: TooltipBehavior(enable: true),
                                 title: ChartTitle(text: 'Temperature Vs Time'),
                                 series: <ChartSeries<weatherWithTime, DateTime>>[
                                   LineSeries<weatherWithTime, DateTime>(
@@ -152,17 +154,18 @@ class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
                                     yValueMapper:
                                         (weatherWithTime currentData, _) =>
                                             double.parse(currentData.temperature),
+                                    opacity: 1,
                                     // dataLabelSettings: DataLabelSettings(isVisible: true),
                                   )
                                 ]),
                           ),
                           Container(
                             height: 400,
-                            width: MediaQuery.of(context).size.width,
+                            width: MediaQuery.of(context).size.width * 0.75,
                             child: SfCartesianChart(
                                 primaryXAxis: DateTimeAxis(
                                     intervalType: DateTimeIntervalType.hours,
-                                    majorGridLines: MajorGridLines(width: 0),
+                                    majorGridLines: MajorGridLines(width: 1),
                                     title: AxisTitle(text: 'Time'),
                                     // minimum: DateTime.now(),
                                     minimum: DateTime.parse(
@@ -172,14 +175,14 @@ class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
                                     desiredIntervals: 100,
                                     dateFormat: DateFormat.Hms()),
                                 primaryYAxis: NumericAxis(
-                                  majorGridLines: MajorGridLines(width: 0),
+                                  majorGridLines: MajorGridLines(width: 1),
                                   minimum: 0,
                                   maximum: 110,
                                   labelFormat: '{value}°%',
                                   title: AxisTitle(text: 'Humidity'),
                                 ),
-                                legend: Legend(isVisible: true),
-                                tooltipBehavior: TooltipBehavior(enable: true),
+                                // legend: Legend(isVisible: true),
+                                // tooltipBehavior: TooltipBehavior(enable: true),
                                 title: ChartTitle(text: 'Humidity Vs Time'),
                                 series: <ChartSeries<weatherWithTime, DateTime>>[
                                   LineSeries<weatherWithTime, DateTime>(
@@ -191,6 +194,7 @@ class _TemperatureVsTimeGraphState extends State<TemperatureVsTimeGraph> {
                                     yValueMapper:
                                         (weatherWithTime currentData, _) =>
                                             double.parse(currentData.humidity),
+                                      opacity: 1,
                                     // dataLabelSettings: DataLabelSettings(isVisible: true),
                                   )
                                 ]),

@@ -58,8 +58,8 @@ class _TabularRepresentationState extends State<TabularRepresentation> {
         .replaceAll('TimeOfDay', '')
         .replaceAll('(', '')
         .replaceAll(')', '');
-    startingTimeAsString = startingTimeAsString.replaceAll('minified:bf', '');
-    endingTimeAsString = endingTimeAsString.replaceAll('minified:bf', '');
+    startingTimeAsString = startingTimeAsString.replaceAll('minified:bi', '');
+    endingTimeAsString = endingTimeAsString.replaceAll('minified:bi', '');
 
     print(
         'pickedDate: $pickedDateAsString, staringTime: $startingTimeAsString, endingTime: $endingTimeAsString, pickedDateForDateFetchingFromFirebase: $pickedDateForDateFetchingFromFirebase');
@@ -103,12 +103,12 @@ class _TabularRepresentationState extends State<TabularRepresentation> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
-                child: Text('Table is loading please wait...'),
+                child: Text('Table is loading Please wait...'),
               );
             } else {
               return DataTable2(
-                  columns: getColumns(),
-                  rows: getRows(),
+                columns: getColumns(),
+                rows: getRows(),
               );
             }
           },
@@ -119,12 +119,14 @@ class _TabularRepresentationState extends State<TabularRepresentation> {
 }
 
 List<DataColumn> getColumns() {
-  return _TabularRepresentationState.columnTable.map((e) => DataColumn(label: Text(e))).toList();
+  return _TabularRepresentationState.columnTable
+      .map((e) => DataColumn(label: Text(e)))
+      .toList();
 }
 
 List<DataRow> getRows() {
   return _TabularRepresentationState.weatherTimeList.map((e) {
-    List<String> cells = [e.time,e.temperature,e.humidity];
+    List<String> cells = [e.time, e.temperature, e.humidity];
     return DataRow(cells: getCells(cells));
   }).toList();
 }
