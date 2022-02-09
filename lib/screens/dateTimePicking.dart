@@ -1,23 +1,29 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:real_time_weather_update/screens/TabularRepresentation.dart';
+import 'package:real_time_weather_update/screens/graph.dart';
 import 'package:real_time_weather_update/screens/tempVsTimeGraph.dart';
 
 class dateTimePicking extends StatefulWidget {
-  const dateTimePicking({Key? key}) : super(key: key);
+  String location = '';
+   dateTimePicking({Key? key,required this.location}) : super(key: key);
 
   @override
-  _dateTimePickingState createState() => _dateTimePickingState();
+  _dateTimePickingState createState() => _dateTimePickingState(location: location);
 }
 
 class _dateTimePickingState extends State<dateTimePicking> {
+  String location = '';
   DateTime? pickedDate = null;
   TimeOfDay? startingTime = null;
   TimeOfDay? endingTime = null;
 
+  _dateTimePickingState({required this.location});
+
   var optionsInsideDropdown = [
     'Graphical Representation',
-    'Tabular Representation'
+    'Tabular Representation',
+    'Graph'
   ];
   var optionSelctedFromDropdown = 'Select Option';
 
@@ -153,6 +159,7 @@ class _dateTimePickingState extends State<dateTimePicking> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => TemperatureVsTimeGraph(
+                                  location: location,
                                   pickedDate: pickedDate,
                                   startingTime: startingTime,
                                   endingTime: endingTime,
@@ -168,6 +175,17 @@ class _dateTimePickingState extends State<dateTimePicking> {
                                   startingTime: startingTime,
                                   endingTime: endingTime,
                                 )));
+                    optionSelctedFromDropdown = 'Select Option';
+                  }
+                  else if(optionSelctedFromDropdown == 'Graph') {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => Graph(
+                              pickedDate: pickedDate,
+                              startingTime: startingTime,
+                              endingTime: endingTime,
+                            )));
                     optionSelctedFromDropdown = 'Select Option';
                   }
                 },

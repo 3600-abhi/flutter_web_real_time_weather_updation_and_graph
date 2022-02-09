@@ -37,6 +37,7 @@ dependencies:
 
   # for graph creation
   syncfusion_flutter_charts: any
+  charts_flutter: ^0.12.0
 
   # to take screenshot
   screenshot: ^1.2.3

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:real_time_weather_update/screens/homePage.dart';
 import 'package:real_time_weather_update/screens/signIn.dart';
 import 'package:real_time_weather_update/services/authentication.dart';
-import 'package:real_time_weather_update/worker.dart';
 
 class signUp extends StatelessWidget {
   signUp({Key? key}) : super(key: key);
@@ -61,7 +61,7 @@ class signUp extends StatelessWidget {
                       .signUpAuth(context, emailController.text.trim(),
                           passwordController.text.trim())
                       .then((value) => Navigator.pushReplacement(context,
-                          MaterialPageRoute(builder: (context) => worker())));
+                          MaterialPageRoute(builder: (context) => homePage())));
                 },
               ),
             ),

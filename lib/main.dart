@@ -3,9 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:real_time_weather_update/screens/dateTimePicking.dart';
+import 'package:real_time_weather_update/screens/homePage.dart';
 import 'package:real_time_weather_update/screens/signIn.dart';
 import 'package:real_time_weather_update/screens/tempVsTimeGraph.dart';
-import 'package:real_time_weather_update/worker.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
               child: Text("Something went wrong!"),
             );
           } else if (snapshot.hasData) {
-            return worker();
+            return homePage();
           } else {
             return Login();
           }

@@ -2,10 +2,12 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:real_time_weather_update/services/RTDB.dart';
 import 'package:real_time_weather_update/weatherWithTime.dart';
 import 'package:data_table_2/data_table_2.dart';
 
 class TabularRepresentation extends StatefulWidget {
+  String location = '';
   DateTime? pickedDate = null;
   TimeOfDay? startingTime = null;
   TimeOfDay? endingTime = null;
@@ -15,100 +17,42 @@ class TabularRepresentation extends StatefulWidget {
       : super(key: key);
 
   @override
-  _TabularRepresentationState createState() => _TabularRepresentationState(
+  _TabularRepresentationState createState() => _TabularRepresentationState(this.location,
       this.pickedDate, this.startingTime, this.endingTime);
 }
 
 class _TabularRepresentationState extends State<TabularRepresentation> {
+  String location = '';
   DateTime? pickedDate = null;
   TimeOfDay? startingTime = null;
   TimeOfDay? endingTime = null;
 
-  String pickedDateAsString = '';
-  String startingTimeAsString = '';
-  String endingTimeAsString = '';
-  String pickedDateForDateFetchingFromFirebase = '';
+  _TabularRepresentationState(this.location,this.pickedDate, this.startingTime, this.endingTime);
 
-  _TabularRepresentationState(
-      this.pickedDate, this.startingTime, this.endingTime);
-
-  static List<weatherWithTime> weatherTimeList = [];
-
-  // data for tables
-  static List<String> columnTable = ['Time', 'Temperature', 'Humidity'];
-
-  Future<List<weatherWithTime>> fetchData() async {
-    // formatting the starting date and time
-    var formatter = new DateFormat('yyyy-MM-dd');
-    var formatterForDateFetchingFromFirebase = new DateFormat('dd-MM-yyyy');
-    String formattedDate = formatter.format(pickedDate!);
-    String formattedDate2 =
-        formatterForDateFetchingFromFirebase.format(pickedDate!);
-    String pickedDateForDateFetchingFromFirebase = formattedDate2;
-    pickedDateAsString = formattedDate;
-    startingTimeAsString = startingTime.toString();
-    endingTimeAsString = endingTime.toString();
-    startingTimeAsString += ':00';
-    endingTimeAsString += ':00';
-    startingTimeAsString = startingTimeAsString
-        .replaceAll('TimeOfDay', '')
-        .replaceAll('(', '')
-        .replaceAll(')', '');
-    endingTimeAsString = endingTimeAsString
-        .replaceAll('TimeOfDay', '')
-        .replaceAll('(', '')
-        .replaceAll(')', '');
-    startingTimeAsString = startingTimeAsString.replaceAll('minified:bi', '');
-    endingTimeAsString = endingTimeAsString.replaceAll('minified:bi', '');
-
-    print(
-        'pickedDate: $pickedDateAsString, staringTime: $startingTimeAsString, endingTime: $endingTimeAsString, pickedDateForDateFetchingFromFirebase: $pickedDateForDateFetchingFromFirebase');
-
-    // fetch the data from real time database
-    Query query = await FirebaseDatabase.instance
-        .ref('Weather Report')
-        .child('Date')
-        .child(pickedDateForDateFetchingFromFirebase)
-        .child('Time')
-        .orderByKey()
-        .startAt(startingTimeAsString)
-        .endAt(endingTimeAsString);
-
-    // printing the queried data which have been fetched from real time database
-    DataSnapshot event = await query.get();
-    print('Queried data is ${event.value}');
-
-    // inserting the data into the list from map
-    var fetchedDataInMap = event.value as Map;
-    fetchedDataInMap.forEach((k, v) {
-      weatherTimeList.add(weatherWithTime(
-          time: k, temperature: v['Temperature'], humidity: v['Humidity']));
-    });
-
-    // for (int i = 0; i < weatherTimeList.length; i++) {
-    //   print(
-    //       'List is : ${weatherTimeList[i].time} ${weatherTimeList[i].temperature} ${weatherTimeList[i].humidity}');
-    // }
-
-    return weatherTimeList;
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Tabular Representation')),
       body: Center(
-        child: FutureBuilder(
-          future: fetchData(),
+        child: FutureBuilder<List<weatherWithTime?>>(
+          future: RTDB.fetchData(location,pickedDate!, startingTime!, endingTime!),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
                 child: Text('Table is loading Please wait...'),
               );
-            } else {
+            }else if(snapshot.data!.isEmpty) {
+              return Center(child: Text('Sorry, No data found for this time range' , style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 30,
+              )));
+            }
+            else {
+              print('length of the ${snapshot.data!.length}');
               return DataTable2(
                 columns: getColumns(),
-                rows: getRows(),
+                rows: getRows(snapshot.data as List<weatherWithTime>),
               );
             }
           },
@@ -119,18 +63,19 @@ class _TabularRepresentationState extends State<TabularRepresentation> {
 }
 
 List<DataColumn> getColumns() {
-  return _TabularRepresentationState.columnTable
+  List<String> columnTable = ['Time', 'Temperature', 'Humidity'];
+  return columnTable
       .map((e) => DataColumn(label: Text(e)))
       .toList();
 }
 
-List<DataRow> getRows() {
-  return _TabularRepresentationState.weatherTimeList.map((e) {
-    List<String> cells = [e.time, e.temperature, e.humidity];
+List<DataRow> getRows(List<weatherWithTime> weatherTimeList) {
+  return weatherTimeList.map((e) {
+    List<String?> cells = [e.time, e.temperature, e.humidity];
     return DataRow(cells: getCells(cells));
   }).toList();
 }
 
-List<DataCell> getCells(List<String> cells) {
-  return cells.map((e) => DataCell(Text(e))).toList();
+List<DataCell> getCells(List<String?> cells) {
+  return cells.map((e) => DataCell(Text(e!))).toList();
 }

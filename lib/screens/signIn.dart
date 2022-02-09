@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:real_time_weather_update/screens/signUp.dart';
 import 'package:real_time_weather_update/services/authentication.dart';
-import 'package:real_time_weather_update/worker.dart';
-
 import '../main.dart';
+import 'homePage.dart';
+
 
 class Login extends StatelessWidget {
   Login({Key? key}) : super(key: key);
@@ -14,7 +14,6 @@ class Login extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenwidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(title: Text('Login')),
       body: Center(
@@ -84,14 +83,15 @@ class Login extends StatelessWidget {
                               .popUntil((route) => route.isFirst);
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         } else {
+
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => worker()));
+                                  builder: (context) => homePage()));
                         }
+
+
                       });
-                      // .then((value) => Navigator.pushReplacement(context,
-                      //         MaterialPageRoute(builder: (context) => worker())));
                     }),
               ),
               // SizedBox(height: 20),
